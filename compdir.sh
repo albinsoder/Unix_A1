@@ -17,12 +17,28 @@ then
 fi
 concat="${pwdHolder}/${input}"
 echo "$concat"
+size="$(du $input | awk '{print $1}')"
+echo "$size"
 if [ -d "$concat" ]
 then
-    if [ -w "$pwdHolder" ] && W="Write = yes" || W="Write = No"
+    if [ -w "$pwdHolder" ]
     then
-        echo "common W"
+        if [ "$size" -gt 512 ]
+        then 
+            echo "BIG BOY, wanna proceed? y/n"
+            read userInput
+            if [ "$userInput" == "y" ]
+            then
+                echo "Grattis kalle"
+            else
+                echo "We done here"
+            fi
+        else    
+            echo "COMMON L"
+        fi
+    else 
+        echo "Always L"
     fi   
 else 
-    echo "common L"
+    echo "common L(also known as depression)"
 fi
