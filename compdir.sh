@@ -3,7 +3,7 @@
 input="$1" # Dir name
 pwdHolder=$(pwd) # Current pwd
 let data="512000" # 512MB
-concat="${pwdHolder}/${input}"
+concat="${pwdHolder}/${input}" #get the location+input
 # echo $pwdHolder
 
 # Create archive file of input directory
@@ -21,30 +21,25 @@ archivator() {
 # Perform archiving of selected dir
 checkDir() {
     size="$(du $input | awk '{print $1}')" # split input, choose to print size of input dir
-
-    if [ -d "$concat" ]
+    if [ -w "$pwdHolder" ]
     then
-        if [ -w "$pwdHolder" ]
-        then
-            if [ "$size" -gt "$data" ]
-            then 
-                echo "Warning: the directory is 512 MB. Proceed? [y/n]"
-                read userInput
-                if [ "$userInput" == "y" ]
-                then
-                    archivator # archivate the dir
-                else
-                    echo "You have selected to not create an archive file"
-                fi
-            else    
+        if [ "$size" -gt "$data" ]
+        then 
+            echo "Warning: the directory is 512 MB. Proceed? [y/n]"
+            read userInput
+            if [ "$userInput" == "y" ]
+            then
                 archivator # archivate the dir
+            else
+                echo "You have selected to not create an archive file"
             fi
-        else 
-            echo "No writing permission in parent dir"
-        fi   
-    else
-        echo "Cannot find directory $input"
-    fi
+        else    
+            archivator # archivate the dir
+        fi
+    else 
+        echo "No writing permission in parent dir"
+    fi   
+
 }
 
 # Basic checks for the input arg provided by user
@@ -62,10 +57,14 @@ fi
 arr=(${input//"/"/ })
 lenInput=`expr "$input" : '.*'` #Get the length of input string to determine iterations
 lenArr=`expr "$arr" : '.*'` #Get the length of input string to determine iterations
-
-if [ $lenArr -lt $lenInput ] 
+if [ -d "$concat" ]
 then
-    echo "You must specify a subdirectory"
-else 
-    checkDir
+    if [ $lenArr -lt $lenInput ] 
+    then
+        echo "You must specify a subdirectory"
+    else 
+        checkDir
+    fi
+else
+    echo "Cannot find directory $input"
 fi
