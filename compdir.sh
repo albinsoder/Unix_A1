@@ -3,6 +3,7 @@
 input="$1" # Dir name
 pwdHolder=$(pwd) # Current pwd
 let data="512000" # 512MB
+concat="${pwdHolder}/${input}"
 # echo $pwdHolder
 
 # Create archive file of input directory
@@ -17,6 +18,7 @@ archivator() {
     echo "Directory $input archived as $input.tgz"
 }
 
+# Perform archiving of selected dir
 checkDir() {
     size="$(du $input | awk '{print $1}')" # split input, choose to print size of input dir
 
@@ -28,7 +30,7 @@ checkDir() {
             then 
                 echo "Warning: the directory is 512 MB. Proceed? [y/n]"
                 read userInput
-                if [ "$userInput" == "y" | "$userInput" == "Y" ]
+                if [ "$userInput" == "y" ]
                 then
                     archivator # archivate the dir
                 else
@@ -56,23 +58,14 @@ then
     exit 1
 
 fi
-concat="${pwdHolder}/${input}"
-dirCheck=0
-badValue=0
-len=`expr "$input" : '.*'` #Get the length of input string to determine iterations
-grep -o . <<< "$input" | while read letter;  
-do
-    dirCheck=$((dirCheck+1))
 
-    if [ "$letter" == "/" ]
-    then 
-        echo "You must specify a subdirectory"
-        badValue=1
-        exit 1
-    elif [[ $dirCheck -eq $len && $badValue -ne 1 ]]
-    then
-        checkDir
-        exit 1
-    fi
+arr=(${input//"/"/ })
+lenInput=`expr "$input" : '.*'` #Get the length of input string to determine iterations
+lenArr=`expr "$arr" : '.*'` #Get the length of input string to determine iterations
 
-done 
+if [ $lenArr -lt $lenInput ] 
+then
+    echo "You must specify a subdirectory"
+else 
+    checkDir
+fi
