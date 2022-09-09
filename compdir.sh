@@ -17,16 +17,32 @@ archivator() {
     echo "Directory $input archived as $input.tgz"
 }
 
-exitAll() {
-    grep -o . <<< "$input" | while read letter;  
-    do
-        if [ "$letter" == "/" ]
-        then 
-            echo 1
-            exit 0
-        fi
-    done
-    echo 2
+checkDir() {
+    size="$(du $input | awk '{print $1}')" # split input, choose to print size of input dir
+
+    if [ -d "$concat" ]
+    then
+        if [ -w "$pwdHolder" ]
+        then
+            if [ "$size" -gt "$data" ]
+            then 
+                echo "Warning: the directory is 512 MB. Proceed? [y/n]"
+                read userInput
+                if [ "$userInput" == "y" | "$userInput" == "Y" ]
+                then
+                    archivator # archivate the dir
+                else
+                    echo "You have selected to not create an archive file"
+                fi
+            else    
+                archivator # archivate the dir
+            fi
+        else 
+            echo "No writing permission in parent dir"
+        fi   
+    else
+        echo "Cannot find directory $input"
+    fi
 }
 
 # Basic checks for the input arg provided by user
@@ -41,43 +57,22 @@ then
 
 fi
 concat="${pwdHolder}/${input}"
-echo "$concat"
 dirCheck=0
+badValue=0
+len=`expr "$input" : '.*'` #Get the length of input string to determine iterations
 grep -o . <<< "$input" | while read letter;  
 do
+    dirCheck=$((dirCheck+1))
+
     if [ "$letter" == "/" ]
     then 
-        dirCheck=1
-    fi
-done <<<$(find tmp -type f)
-
-echo "$dirCheck"
-if [ "$dirCheck" == "1" ]
-then    
-    size="$(du $input | awk '{print $1}')" # split input, choose to print size of input dir
-    echo "$size"
-fi
-
-if [ -d "$concat" ]
-then
-    if [ -w "$pwdHolder" ]
+        echo "You must specify a subdirectory"
+        badValue=1
+        exit 1
+    elif [[ $dirCheck -eq $len && $badValue -ne 1 ]]
     then
-        if [ "$size" -gt "$data" ]
-        then 
-            echo "Warning: the directory is 512 MB. Proceed? [y/n]"
-            read userInput
-            if [ "$userInput" == "y" | "$userInput" == "Y" ]
-            then
-                archivator # archivate the dir
-            else
-                echo "You have selected to not create an archive file"
-            fi
-        else    
-            archivator # archivate the dir
-        fi
-    else 
-        echo "No writing permission in parent dir"
-    fi   
-else
-    echo "Cannot find directory $input"
-fi
+        checkDir
+        exit 1
+    fi
+
+done 
