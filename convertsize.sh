@@ -2,7 +2,7 @@
 
 input="$1" # Input arg: XXXXYY -> Ex 4096KB
 let KB=1024 # Variable used in the unit switching calculations
-
+#test
 convertUnit() {
     unit="$1" # Which unit B/KB etc
     let arr="$2" # Data unit to be converted
