@@ -52,7 +52,6 @@ archivator() {
 if [ -f $concat ] # If file exists in current dir, call archivator
 then
     archivator
-    echo "Selection of smallest file is completed"
 else
     echo "File not found in current directory"
 fi

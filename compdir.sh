@@ -20,10 +20,10 @@ archivator() {
 
 # Perform archiving of selected dir
 checkDir() {
-    size="$(du $input | awk '{print $1}')" # split input, choose to print size of input dir
+    let size="$(du -s $input | awk '{print $1}')" # split input, choose to print size of input dir
     if [ -w "$pwdHolder" ]
     then
-        if [ "$size" -gt "$data" ]
+        if [ $size -gt $data ]
         then 
             echo "Warning: the directory is 512 MB. Proceed? [y/n]"
             read userInput
